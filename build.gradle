@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.3'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.jobagent'
+version = '1.0.0'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot core
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // HTTP client for Apify, Claude, Slack calls
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // JSON
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
+    // Google Sheets
+    implementation 'com.google.apis:google-api-services-sheets:v4-rev20230526-2.0.0'
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.23.0'
+    implementation 'com.google.http-client:google-http-client-jackson2:1.44.1'
+
+    // Env file loading for local dev
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    // Lombok — removes boilerplate getters/setters
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Required for Railway — produces a fat JAR
+bootJar {
+    archiveFileName = 'job-agent.jar'
+}
+
+bootRun {
+    doFirst {
+        def envFile = file('.env')
+        if (envFile.exists()) {
+            envFile.eachLine { line ->
+                if (line && !line.startsWith('#')) {
+                    def (key, value) = line.tokenize('=', 2)
+                    if (key && value) {
+                        environment(key.trim(), value.trim())
+                    }
+                }
+            }
+        }
+    }
+}

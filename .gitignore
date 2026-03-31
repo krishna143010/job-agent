@@ -1,0 +1,12 @@
+.gradle/
+build/
+.env
+*.json
+!.env.example
+.idea/
+*.iml
+out/
+
+# Local secrets file
+src/main/resources/application-local.properties
+
