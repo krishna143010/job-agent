@@ -51,4 +51,8 @@ public class AppConfig {
     private String profilePreferences;
     @Value("${agent.profile.experience}")
     private String profileExperience;
+
+    @Value("${job.max-age-hours:24}")
+    private int maxAgeHours;
+
 }
