@@ -1,6 +1,8 @@
 package com.jobagent.controller;
 
+import com.jobagent.model.ApifyWebhookPayload;
 import com.jobagent.model.Job;
+import com.jobagent.service.ApifyService;
 import com.jobagent.service.JobProcessorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,26 +18,41 @@ import java.util.List;
 public class WebhookController {
 
     private final JobProcessorService jobProcessorService;
+    private final ApifyService apifyService;
 
     /**
-     * Apify calls this URL when an actor run completes.
-     * Configure this URL in Apify actor settings → Webhooks.
-     *
-     * Expected body: JSON array of job objects from Apify dataset.
+     * Apify calls this when an actor run completes.
+     * Receives datasetId, fetches actual jobs from Apify dataset API,
+     * then processes them through the pipeline.
      */
     @PostMapping("/apify-webhook")
-    public ResponseEntity<String> handleApifyWebhook(@RequestBody List<Job> jobs) {
-        log.info("Webhook received — {} jobs in batch", jobs.size());
+    public ResponseEntity<String> handleApifyWebhook(
+            @RequestBody ApifyWebhookPayload payload) {
 
-        // Process asynchronously so we return 200 to Apify immediately
-        // Apify retries if it doesn't get a 2xx within 30 seconds
-        new Thread(() -> jobProcessorService.process(jobs)).start();
+        log.info("Webhook received — runId: {}, datasetId: {}, status: {}",
+                payload.getActorRunId(),
+                payload.getDatasetId(),
+                payload.getStatus());
+
+        if (!"SUCCEEDED".equals(payload.getStatus())) {
+            log.warn("Skipping non-successful run: {}", payload.getStatus());
+            return ResponseEntity.ok("skipped — status: " + payload.getStatus());
+        }
+
+        new Thread(() -> {
+            List<Job> jobs = apifyService.fetchJobsFromDataset(payload.getDatasetId());
+            if (!jobs.isEmpty()) {
+                jobProcessorService.process(jobs);
+            } else {
+                log.warn("No jobs found in dataset {}", payload.getDatasetId());
+            }
+        }).start();
 
         return ResponseEntity.ok("accepted");
     }
 
     /**
-     * Health check — Railway uses this to verify the app is alive.
+     * Health check — Cloud Run uses this to verify the app is alive.
      */
     @GetMapping("/health")
     public ResponseEntity<String> health() {
@@ -43,13 +60,27 @@ public class WebhookController {
     }
 
     /**
-     * Manual trigger — useful during local testing without Apify.
-     * POST /api/test with a single job JSON body.
+     * Manual test — simulates a single job without needing Apify.
      */
     @PostMapping("/test")
     public ResponseEntity<String> testSingleJob(@RequestBody Job job) {
-        log.info("Manual test trigger for {} at {}", job.getTitle(), job.getCompany());
+        log.info("Manual test for {} at {}", job.getTitle(), job.getCompany());
         jobProcessorService.process(List.of(job));
         return ResponseEntity.ok("test job processed — check logs");
+    }
+
+    /**
+     * Webhook test — simulates what Apify sends with a real datasetId.
+     */
+    @PostMapping("/test-webhook")
+    public ResponseEntity<String> testWebhook(@RequestBody ApifyWebhookPayload payload) {
+        log.info("Test webhook — datasetId: {}", payload.getDatasetId());
+        new Thread(() -> {
+            List<Job> jobs = apifyService.fetchJobsFromDataset(payload.getDatasetId());
+            if (!jobs.isEmpty()) {
+                jobProcessorService.process(jobs);
+            }
+        }).start();
+        return ResponseEntity.ok("test webhook accepted");
     }
 }
