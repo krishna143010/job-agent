@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity Feed | TalentPulse AI</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -317,6 +318,33 @@
             gap: 12px;
         }
 
+        .activity-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .apply-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
         .activity-title {
             font-size: 16px;
             font-weight: 600;
@@ -604,6 +632,10 @@
                     ? `<span class="activity-tag score ${activity.score >= 8 ? 'high' : ''}">${activity.score}/10</span>`
                     : '';
 
+                const applyBtnHtml = activity.jobUrl
+                    ? `<a href="${activity.jobUrl}" target="_blank" class="apply-btn">🔗 Apply</a>`
+                    : '';
+
                 return `
                     <div class="activity-item">
                         <div class="activity-icon ${iconClass}">${icon}</div>
@@ -613,7 +645,10 @@
                                     ${activity.title || 'Unknown Position'}
                                     <span class="activity-company">@ ${activity.company || 'Unknown'}</span>
                                 </div>
-                                <div class="activity-time">${timeAgo}</div>
+                                <div class="activity-actions">
+                                    ${applyBtnHtml}
+                                    <span class="activity-time">${timeAgo}</span>
+                                </div>
                             </div>
                             <div class="activity-message">${activity.message}</div>
                             <div class="activity-meta">

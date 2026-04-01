@@ -1,7 +1,9 @@
 package com.jobagent.service;
 
+import com.jobagent.config.AppConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class StatsService {
 
+    private final AppConfig config;
+
     private final AtomicInteger totalJobsReceived = new AtomicInteger(0);
     private final AtomicInteger totalJobsPassed = new AtomicInteger(0);
     private final AtomicInteger totalAlertsTriggered = new AtomicInteger(0);
@@ -25,11 +29,14 @@ public class StatsService {
     private final Map<Long, AtomicInteger> hourlyJobsReceived = new ConcurrentHashMap<>();
     private final Map<Long, AtomicInteger> hourlyAlerts = new ConcurrentHashMap<>();
 
-    // Recent activity log (last 50 items)
+    // Recent activity log - keeps items for configured hours (default 24h)
     private final List<ActivityLog> recentActivity = new ArrayList<>();
-    private static final int MAX_ACTIVITY_LOG = 50;
 
     private final Instant startTime = Instant.now();
+
+    public StatsService(AppConfig config) {
+        this.config = config;
+    }
 
     @Getter
     public static class ActivityLog {
@@ -39,18 +46,20 @@ public class StatsService {
         private final String company;
         private final String title;
         private final Integer score;
+        private final String jobUrl;
 
-        public ActivityLog(String type, String message, String company, String title, Integer score) {
+        public ActivityLog(String type, String message, String company, String title, Integer score, String jobUrl) {
             this.timestamp = Instant.now();
             this.type = type;
             this.message = message;
             this.company = company;
             this.title = title;
             this.score = score;
+            this.jobUrl = jobUrl;
         }
     }
 
-    public void recordJobProcessed(String company, String title, int score, boolean alertTriggered) {
+    public void recordJobProcessed(String company, String title, int score, boolean alertTriggered, String jobUrl) {
         totalJobsReceived.incrementAndGet();
         totalJobsPassed.incrementAndGet();
         
@@ -60,20 +69,20 @@ public class StatsService {
         if (alertTriggered) {
             totalAlertsTriggered.incrementAndGet();
             hourlyAlerts.computeIfAbsent(hourKey, k -> new AtomicInteger(0)).incrementAndGet();
-            addActivity("ALERT", "High-score job alert triggered", company, title, score);
+            addActivity("ALERT", "High-score job alert triggered", company, title, score, jobUrl);
         } else {
-            addActivity("PROCESSED", "Job processed and logged", company, title, score);
+            addActivity("PROCESSED", "Job processed and logged", company, title, score, jobUrl);
         }
     }
 
-    public void recordJobFiltered(String reason, String company, String title) {
+    public void recordJobFiltered(String reason, String company, String title, String jobUrl) {
         totalJobsFiltered.incrementAndGet();
         totalJobsReceived.incrementAndGet();
         
         long hourKey = getHourKey(Instant.now());
         hourlyJobsReceived.computeIfAbsent(hourKey, k -> new AtomicInteger(0)).incrementAndGet();
         
-        addActivity("FILTERED", reason, company, title, null);
+        addActivity("FILTERED", reason, company, title, null, jobUrl);
     }
 
     public void recordBatchProcessed(int total, int passed, int alerted, int filtered) {
@@ -82,15 +91,42 @@ public class StatsService {
                 total, passed, alerted, filtered);
     }
 
-    public void recordError(String company, String title, String error) {
-        addActivity("ERROR", error, company, title, null);
+    public void recordError(String company, String title, String error, String jobUrl) {
+        addActivity("ERROR", error, company, title, null, jobUrl);
     }
 
-    private synchronized void addActivity(String type, String message, String company, String title, Integer score) {
-        recentActivity.add(0, new ActivityLog(type, message, company, title, score));
-        if (recentActivity.size() > MAX_ACTIVITY_LOG) {
-            recentActivity.remove(recentActivity.size() - 1);
-        }
+    private synchronized void addActivity(String type, String message, String company, String title, Integer score, String jobUrl) {
+        recentActivity.add(0, new ActivityLog(type, message, company, title, score, jobUrl));
+        // Cleanup old activities (older than configured max age hours)
+        cleanupOldActivities();
+    }
+
+    /**
+     * Removes activities older than the configured max age.
+     * Called after each new activity is added.
+     */
+    private void cleanupOldActivities() {
+        Instant cutoff = Instant.now().minus(config.getMaxAgeHours(), ChronoUnit.HOURS);
+        recentActivity.removeIf(activity -> activity.getTimestamp().isBefore(cutoff));
+    }
+
+    /**
+     * Scheduled cleanup every hour to remove old data.
+     */
+    @Scheduled(fixedRate = 3600000) // Every hour
+    public void scheduledCleanup() {
+        cleanupOldActivities();
+        cleanupOldHourlyData();
+        log.debug("Cleaned up old activity and hourly data");
+    }
+
+    /**
+     * Cleans up hourly stats older than 24 hours.
+     */
+    private void cleanupOldHourlyData() {
+        long cutoffHour = getHourKey(Instant.now().minus(24, ChronoUnit.HOURS));
+        hourlyJobsReceived.entrySet().removeIf(entry -> entry.getKey() < cutoffHour);
+        hourlyAlerts.entrySet().removeIf(entry -> entry.getKey() < cutoffHour);
     }
 
     private long getHourKey(Instant instant) {
@@ -149,15 +185,6 @@ public class StatsService {
         } else {
             return String.format("%dm", minutes);
         }
-    }
-
-    // Clean up old hourly data (older than 48 hours)
-    public void cleanupOldData() {
-        Instant cutoff = Instant.now().minus(48, ChronoUnit.HOURS);
-        long cutoffMillis = cutoff.toEpochMilli();
-        
-        hourlyJobsReceived.entrySet().removeIf(e -> e.getKey() < cutoffMillis);
-        hourlyAlerts.entrySet().removeIf(e -> e.getKey() < cutoffMillis);
     }
 }
 

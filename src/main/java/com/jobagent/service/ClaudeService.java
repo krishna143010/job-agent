@@ -5,13 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobagent.config.AppConfig;
 import com.jobagent.model.Job;
 import com.jobagent.model.JobScore;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -22,9 +25,39 @@ public class ClaudeService {
 
     private final AppConfig config;
     private final ObjectMapper objectMapper;
+    private final WebClient webClient;
 
     private static final String ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
     private static final String ANTHROPIC_VERSION = "2023-06-01";
+    private static final int MAX_RETRIES = 3;
+    private static final Duration RETRY_DELAY = Duration.ofSeconds(5);
+
+    /**
+     * Warmup connection to Claude API on startup.
+     * This helps establish a fresh connection after Cloud Run cold start.
+     */
+    @PostConstruct
+    public void warmup() {
+        log.info("Warming up Claude API connection...");
+        try {
+            // Simple ping to establish connection - will get 400 but that's fine
+            webClient
+                .post()
+                .uri(ANTHROPIC_URL)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("x-api-key", config.getAnthropicApiKey())
+                .header("anthropic-version", ANTHROPIC_VERSION)
+                .bodyValue(Map.of("model", config.getAnthropicModel(), "max_tokens", 1, "messages", List.of()))
+                .retrieve()
+                .bodyToMono(String.class)
+                .timeout(Duration.ofSeconds(10))
+                .onErrorComplete()  // Ignore errors - we just want to warm up the connection
+                .block();
+            log.info("Claude API connection warmed up");
+        } catch (Exception e) {
+            log.debug("Warmup ping completed (expected error): {}", e.getMessage());
+        }
+    }
 
     public JobScore score(Job job) {
         String prompt = buildPrompt(job);
@@ -38,7 +71,7 @@ public class ClaudeService {
                 )
             );
 
-            String response = WebClient.create()
+            String response = webClient
                 .post()
                 .uri(ANTHROPIC_URL)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -47,12 +80,24 @@ public class ClaudeService {
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
+                .retryWhen(Retry.backoff(MAX_RETRIES, RETRY_DELAY)
+                    .maxBackoff(Duration.ofSeconds(30))  // Max wait 30 seconds between retries
+                    .jitter(0.5)  // Add randomness to prevent thundering herd
+                    .doBeforeRetry(retrySignal -> 
+                        log.warn("Retry attempt {} for Claude API for job '{}' at '{}' due to: {}", 
+                            retrySignal.totalRetries() + 1, 
+                            job.getTitle(),
+                            job.getCompany(),
+                            retrySignal.failure().getMessage()))
+                    .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> 
+                        retrySignal.failure()))
                 .block();
 
             return parseResponse(response);
 
         } catch (Exception e) {
-            log.error("Claude scoring failed for job {} at {}: {}", job.getTitle(), job.getCompany(), e.getMessage());
+            log.error("Claude scoring failed for job {} at {} after {} retries: {}", 
+                job.getTitle(), job.getCompany(), MAX_RETRIES, e.getMessage());
             // Return a safe default — job gets logged but not alerted
             JobScore fallback = new JobScore();
             fallback.setProductCompany(true);

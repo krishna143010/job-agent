@@ -11,6 +11,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
 import lombok.Getter;
 
 import javax.net.ssl.SSLException;
@@ -29,15 +30,27 @@ public class AppConfig {
         var sslContext = SslContextBuilder.forClient()
                 .build();
 
-        // Configure HttpClient with extended timeouts including SSL handshake
-        HttpClient httpClient = HttpClient.create()
+        // Configure connection provider optimized for Cloud Run (serverless)
+        // Use shorter idle times since Cloud Run may sleep the container
+        ConnectionProvider connectionProvider = ConnectionProvider.builder("custom")
+                .maxConnections(20)
+                .maxIdleTime(Duration.ofSeconds(10))       // Close idle connections quickly (Cloud Run may sleep)
+                .maxLifeTime(Duration.ofMinutes(2))        // Short lifetime - prevents stale connections after sleep
+                .pendingAcquireTimeout(Duration.ofSeconds(45))
+                .evictInBackground(Duration.ofSeconds(10)) // Aggressively evict stale connections
+                .lifo()                                     // Use most recent connection first
+                .build();
+
+        // Configure HttpClient with extended timeouts and fresh connections
+        HttpClient httpClient = HttpClient.create(connectionProvider)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000) // 60 seconds connection timeout
-                .responseTimeout(Duration.ofSeconds(120)) // 120 seconds response timeout
+                .option(ChannelOption.SO_KEEPALIVE, true)            // Enable TCP keep-alive
+                .responseTimeout(Duration.ofSeconds(180))            // 3 minutes response timeout for Claude
                 .secure(spec -> spec.sslContext(sslContext)
-                        .handshakeTimeout(Duration.ofSeconds(60))) // 60 seconds SSL handshake timeout
+                        .handshakeTimeout(Duration.ofSeconds(60)))   // 60 seconds SSL handshake timeout
                 .doOnConnected(conn -> conn
-                        .addHandlerLast(new ReadTimeoutHandler(90, TimeUnit.SECONDS))
-                        .addHandlerLast(new WriteTimeoutHandler(90, TimeUnit.SECONDS)));
+                        .addHandlerLast(new ReadTimeoutHandler(180, TimeUnit.SECONDS))  // 3 min read timeout
+                        .addHandlerLast(new WriteTimeoutHandler(60, TimeUnit.SECONDS)));
 
         // Increase buffer size to 16MB for large Apify dataset responses
         ExchangeStrategies strategies = ExchangeStrategies.builder()

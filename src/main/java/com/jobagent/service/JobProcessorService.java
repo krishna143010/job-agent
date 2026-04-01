@@ -48,7 +48,7 @@ public class JobProcessorService {
         // Record filtered old jobs
         for (Job job : jobs) {
             if (!recentJobs.contains(job)) {
-                statsService.recordJobFiltered("Too old (exceeded max age)", job.getCompany(), job.getTitle());
+                statsService.recordJobFiltered("Too old (exceeded max age)", job.getCompany(), job.getTitle(), job.getUrl());
             }
         }
 
@@ -67,7 +67,7 @@ public class JobProcessorService {
         // Record filtered by title
         for (Job job : uniqueJobs) {
             if (!titleFilteredJobs.contains(job)) {
-                statsService.recordJobFiltered("Excluded title keyword", job.getCompany(), job.getTitle());
+                statsService.recordJobFiltered("Excluded title keyword", job.getCompany(), job.getTitle(), job.getUrl());
             }
         }
 
@@ -80,7 +80,7 @@ public class JobProcessorService {
         // Record filtered by applicant count
         for (Job job : titleFilteredJobs) {
             if (!filteredJobs.contains(job)) {
-                statsService.recordJobFiltered("Too many applicants", job.getCompany(), job.getTitle());
+                statsService.recordJobFiltered("Too many applicants", job.getCompany(), job.getTitle(), job.getUrl());
             }
         }
 
@@ -95,7 +95,7 @@ public class JobProcessorService {
                 // Step 6 — Drop non-product companies entirely
                 if (!score.isProductCompany()) {
                     log.info("Skipped (not product company): {} at {}", job.getTitle(), job.getCompany());
-                    statsService.recordJobFiltered("Not a product company", job.getCompany(), job.getTitle());
+                    statsService.recordJobFiltered("Not a product company", job.getCompany(), job.getTitle(), job.getUrl());
                     skipped++;
                     continue;
                 }
@@ -116,11 +116,11 @@ public class JobProcessorService {
                 }
 
                 // Record stats
-                statsService.recordJobProcessed(job.getCompany(), job.getTitle(), score.getScore(), alertTriggered);
+                statsService.recordJobProcessed(job.getCompany(), job.getTitle(), score.getScore(), alertTriggered, job.getUrl());
 
             } catch (Exception e) {
                 log.error("Failed to process job {} at {}: {}", job.getTitle(), job.getCompany(), e.getMessage());
-                statsService.recordError(job.getCompany(), job.getTitle(), e.getMessage());
+                statsService.recordError(job.getCompany(), job.getTitle(), e.getMessage(), job.getUrl());
             }
         }
 

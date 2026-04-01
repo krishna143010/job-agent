@@ -3,6 +3,8 @@ package com.jobagent.controller;
 import com.jobagent.config.AppConfig;
 import com.jobagent.service.StatsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +23,7 @@ public class StatsController {
     private final AppConfig config;
 
     @GetMapping("/stats")
-    public Map<String, Object> getStats() {
+    public ResponseEntity<Map<String, Object>> getStats() {
         Map<String, Object> stats = new HashMap<>();
         
         // Current stats
@@ -43,22 +45,26 @@ public class StatsController {
         // UI config
         stats.put("pollingIntervalSeconds", config.getUiPollingIntervalSeconds());
         
-        return stats;
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(stats);
     }
 
     @GetMapping("/config")
-    public Map<String, Object> getConfig() {
+    public ResponseEntity<Map<String, Object>> getConfig() {
         Map<String, Object> configMap = new HashMap<>();
         configMap.put("pollingIntervalSeconds", config.getUiPollingIntervalSeconds());
         configMap.put("alertThreshold", config.getAlertThreshold());
         configMap.put("maxAgeHours", config.getMaxAgeHours());
         configMap.put("maxApplicants", config.getMaxApplicants());
-        return configMap;
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(configMap);
     }
 
     @GetMapping("/activity")
-    public List<Map<String, Object>> getRecentActivity() {
-        return statsService.getRecentActivity().stream()
+    public ResponseEntity<List<Map<String, Object>>> getRecentActivity() {
+        List<Map<String, Object>> activities = statsService.getRecentActivity().stream()
                 .limit(20)
                 .map(activity -> {
                     Map<String, Object> item = new HashMap<>();
@@ -68,19 +74,24 @@ public class StatsController {
                     item.put("company", activity.getCompany());
                     item.put("title", activity.getTitle());
                     item.put("score", activity.getScore());
+                    item.put("jobUrl", activity.getJobUrl());
                     return item;
                 })
                 .collect(Collectors.toList());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(activities);
     }
 
     @GetMapping("/health")
-    public Map<String, Object> health() {
+    public ResponseEntity<Map<String, Object>> health() {
         Map<String, Object> health = new HashMap<>();
         health.put("status", "UP");
         health.put("name", "TalentPulse AI");
         health.put("version", "1.0.0");
         health.put("uptime", statsService.getUptimeFormatted());
-        return health;
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(health);
     }
 }
-
