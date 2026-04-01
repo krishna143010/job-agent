@@ -1,5 +1,6 @@
 package com.jobagent.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -21,5 +22,6 @@ public class JobScore {
     private String missingSkills;
 
     @JsonProperty("visa_sponsorship")
+    @JsonAlias("visa")
     private String visaSponsorship;
 }

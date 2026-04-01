@@ -69,11 +69,20 @@ public class SheetsService {
 
         try {
             List<Object> row = List.of(
-                job.getCompany(),
-                job.getTitle(),
+                job.getCompany() != null ? job.getCompany() : "",
+                job.getTitle() != null ? job.getTitle() : "",
+                job.getLocation() != null ? job.getLocation() : "",
                 job.getScore().getScore(),
                 job.getScore().isProductCompany() ? "Yes" : "No",
-                job.getScore().getReason(),
+                job.getScore().getReason() != null ? job.getScore().getReason() : "",
+                job.getScore().getVisaSponsorship() != null ? job.getScore().getVisaSponsorship() : "",
+                job.getScore().getMissingSkills() != null ? job.getScore().getMissingSkills() : "",
+                job.getFormattedSalary(),
+                job.getVisaSponsorshipStatus(),
+                job.getExperienceLevel() != null ? job.getExperienceLevel() : "",
+                job.getWorkArrangement() != null ? job.getWorkArrangement() : "",
+                job.getApplicationsCount() != null ? job.getApplicationsCount() : "",
+                job.getKeySkillsFormatted(),
                 job.getUrl() != null ? job.getUrl() : "",
                 LocalDate.now().toString(),
                 "new"  // status column — update manually as you progress

@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentPulse AI | Intelligent Job Opportunity Radar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --glow: rgba(99, 102, 241, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgPulse 10s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Grid Pattern */
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 30px var(--glow);
+            animation: logoGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { box-shadow: 0 0 30px var(--glow); }
+            50% { box-shadow: 0 0 50px var(--glow), 0 0 80px rgba(16, 185, 129, 0.3); }
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50px;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+            border-color: var(--border);
+        }
+
+        .nav-link.active {
+            color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50px;
+            font-size: 14px;
+            color: var(--primary-light);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 40px var(--glow);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon.primary { background: rgba(99, 102, 241, 0.15); }
+        .stat-icon.success { background: rgba(16, 185, 129, 0.15); }
+        .stat-icon.warning { background: rgba(245, 158, 11, 0.15); }
+        .stat-icon.danger { background: rgba(239, 68, 68, 0.15); }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 60px 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* How It Works */
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            position: relative;
+        }
+
+        .pipeline-step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-step:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 auto 16px;
+        }
+
+        .step-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .activity-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.2s ease;
+        }
+
+        .activity-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.alert { background: rgba(16, 185, 129, 0.15); }
+        .activity-icon.processed { background: rgba(99, 102, 241, 0.15); }
+        .activity-icon.filtered { background: rgba(245, 158, 11, 0.15); }
+        .activity-icon.error { background: rgba(239, 68, 68, 0.15); }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-title {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .activity-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .activity-score {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+        }
+
+        .activity-score.high {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--secondary);
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .tech-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .tech-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .tech-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Architecture */
+        .architecture {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 40px;
+        }
+
+        .arch-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 32px;
+        }
+
+        .arch-node {
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 32px;
+            text-align: center;
+            min-width: 140px;
+            transition: all 0.3s ease;
+        }
+
+        .arch-node:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .arch-node-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .arch-node-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .arch-arrow {
+            font-size: 24px;
+            color: var(--primary);
+            animation: arrowPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(5px); }
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-light);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .stat-value {
+                font-size: 36px;
+            }
+
+            .arch-diagram {
+                flex-direction: column;
+            }
+
+            .arch-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Refresh Controls */
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-color: var(--primary);
+        }
+
+        .refresh-btn.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .refresh-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .refresh-btn.paused {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--accent);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auto-refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .auto-refresh-indicator .status-dot {
+            width: 6px;
+            height: 6px;
+        }
+
+        .last-refresh {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="grid-pattern"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <span class="logo-text">TalentPulse AI</span>
+                </div>
+                <div class="nav-links">
+                    <a href="/" class="nav-link active">🏠 Home</a>
+                    <a href="/stats.html" class="nav-link">📊 Statistics</a>
+                    <a href="/activity.html" class="nav-link">📡 Activity</a>
+                </div>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Online</span>
+                    <span id="uptime">—</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-badge">
+                    🤖 Powered by Claude AI
+                </div>
+                <h1>Intelligent Job<br>Opportunity Radar</h1>
+                <p>An autonomous AI agent that continuously monitors job postings,
+                   intelligently scores opportunities, and alerts you to perfect matches
+                   in real-time.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">📊</div>
+                        <div class="stat-label">Jobs Processed (24h)</div>
+                        <div class="stat-value" id="processed24h">—</div>
+                        <div class="stat-change">Real-time monitoring</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">🎯</div>
+                        <div class="stat-label">Alerts Triggered (24h)</div>
+                        <div class="stat-value" id="alerts24h">—</div>
+                        <div class="stat-change">High-score matches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">🔍</div>
+                        <div class="stat-label">Total Jobs Analyzed</div>
+                        <div class="stat-value" id="totalProcessed">—</div>
+                        <div class="stat-change">Since deployment</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon danger">🚀</div>
+                        <div class="stat-label">Total Alerts Sent</div>
+                        <div class="stat-value" id="totalAlerts">—</div>
+                        <div class="stat-change">Opportunities captured</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">⚙️ How It Works</h2>
+                </div>
+                <div class="pipeline">
+                    <div class="pipeline-step">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">🌐</div>
+                        <div class="step-title">Data Ingestion</div>
+                        <div class="step-desc">Apify scrapes job boards and sends webhook with fresh listings</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">⏰</div>
+                        <div class="step-title">Time Filter</div>
+                        <div class="step-desc">Removes jobs older than configured hours</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">🔤</div>
+                        <div class="step-title">Title Filter</div>
+                        <div class="step-desc">Excludes senior roles like Lead, Principal, Architect</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">👥</div>
+                        <div class="step-title">Applicant Filter</div>
+                        <div class="step-desc">Skips jobs with too many applicants</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">5</div>
+                        <div class="step-icon">🧠</div>
+                        <div class="step-title">AI Scoring</div>
+                        <div class="step-desc">Claude AI evaluates job fit and company type</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">6</div>
+                        <div class="step-icon">📋</div>
+                        <div class="step-title">Sheets Log</div>
+                        <div class="step-desc">All qualified jobs logged to Google Sheets</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">7</div>
+                        <div class="step-icon">🔔</div>
+                        <div class="step-title">Slack Alert</div>
+                        <div class="step-desc">High-score jobs trigger instant notifications</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">📡 Live Activity Feed</h2>
+                    <div class="refresh-controls">
+                        <div class="auto-refresh-indicator" id="autoRefreshIndicator">
+                            <span class="status-dot"></span>
+                            <span>Auto-refresh</span>
+                        </div>
+                        <span class="last-refresh">Last: <span id="lastRefresh">—</span></span>
+                        <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+                        <button class="refresh-btn" id="autoRefreshBtn" onclick="toggleAutoRefresh()">⏸️ Pause</button>
+                    </div>
+                </div>
+                <div class="activity-feed">
+                    <div class="activity-list" id="activityList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <p>No activity yet. Jobs will appear here when processed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">🛠️ Tech Stack</h2>
+                </div>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <div class="tech-icon">☕</div>
+                        <div class="tech-name">Java 17</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🍃</div>
+                        <div class="tech-name">Spring Boot</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🤖</div>
+                        <div class="tech-name">Claude AI</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🕷️</div>
+                        <div class="tech-name">Apify</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📊</div>
+                        <div class="tech-name">Google Sheets</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">💬</div>
+                        <div class="tech-name">Slack</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">☁️</div>
+                        <div class="tech-name">Google Cloud</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">⚡</div>
+                        <div class="tech-name">WebFlux</div>
+                    </div>
+                </div>
+
+                <div class="architecture">
+                    <h3 style="text-align: center; margin-bottom: 8px;">System Architecture</h3>
+                    <p style="text-align: center; color: var(--text-muted); font-size: 14px;">Event-driven pipeline with intelligent filtering and AI-powered scoring</p>
+                    <div class="arch-diagram">
+                        <div class="arch-node">
+                            <div class="arch-node-icon">🕷️</div>
+                            <div class="arch-node-label">Apify</div>
+                        </div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-node">
+                            <div class="arch-node-icon">⚡</div>
+                            <div class="arch-node-label">TalentPulse</div>
+                        </div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-node">
+                            <div class="arch-node-icon">🧠</div>
+                            <div class="arch-node-label">Claude AI</div>
+                        </div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-node">
+                            <div class="arch-node-icon">📊</div>
+                            <div class="arch-node-label">Sheets</div>
+                        </div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-node">
+                            <div class="arch-node-icon">🔔</div>
+                            <div class="arch-node-label">Slack</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">✨ Key Features</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">🎯</div>
+                        <div class="step-title">Smart Scoring</div>
+                        <div class="step-desc" style="margin-top: 8px;">AI evaluates role fit, company type, skill match, and visa sponsorship potential on a 1-10 scale</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">🏢</div>
+                        <div class="step-title">Company Detection</div>
+                        <div class="step-desc" style="margin-top: 8px;">Automatically identifies and filters out consulting firms, staffing agencies, and IT services companies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">⚡</div>
+                        <div class="step-title">Real-time Alerts</div>
+                        <div class="step-desc" style="margin-top: 8px;">Instant Slack notifications for high-scoring opportunities so you never miss a perfect match</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon danger">📈</div>
+                        <div class="step-title">Complete Tracking</div>
+                        <div class="step-desc" style="margin-top: 8px;">All qualified jobs logged to Google Sheets with scores, reasons, and application status tracking</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    © 2026 TalentPulse AI — Built with ☕ Java & 🤖 Claude
+                </div>
+                <div class="footer-links">
+                    <a href="/stats.html">📊 Statistics</a>
+                    <a href="/activity.html">📡 Activity</a>
+                    <a href="/api/health">🔧 API Health</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let pollingInterval = 300000; // Default 5 minutes, will be updated from config
+        let autoRefreshEnabled = true;
+        let statsTimer = null;
+        let activityTimer = null;
+
+        // Fetch config first
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                pollingInterval = (config.pollingIntervalSeconds || 300) * 1000;
+                console.log('Polling interval set to:', pollingInterval / 1000, 'seconds');
+            } catch (error) {
+                console.error('Failed to fetch config, using default polling interval');
+            }
+        }
+
+        // Fetch and update stats
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                animateValue('processed24h', data.processed24h || 0);
+                animateValue('alerts24h', data.alerts24h || 0);
+                animateValue('totalProcessed', data.totalProcessed || 0);
+                animateValue('totalAlerts', data.totalAlerts || 0);
+
+                document.getElementById('uptime').textContent = data.uptime || '—';
+                updateLastRefreshTime();
+            } catch (error) {
+                console.error('Failed to fetch stats:', error);
+            }
+        }
+
+        // Fetch and update activity
+        async function fetchActivity() {
+            try {
+                const response = await fetch('/api/activity');
+                const data = await response.json();
+
+                const activityList = document.getElementById('activityList');
+
+                if (data.length === 0) {
+                    activityList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <p>No activity yet. Jobs will appear here when processed.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                activityList.innerHTML = data.map(activity => {
+                    const iconClass = activity.type.toLowerCase();
+                    const icons = {
+                        'alert': '🎯',
+                        'processed': '✅',
+                        'filtered': '🚫',
+                        'error': '❌'
+                    };
+                    const icon = icons[iconClass] || '📋';
+
+                    const timeAgo = getTimeAgo(new Date(activity.timestamp));
+                    const scoreHtml = activity.score !== null
+                        ? `<span class="activity-score ${activity.score >= 8 ? 'high' : ''}">${activity.score}/10</span>`
+                        : '';
+
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-icon ${iconClass}">${icon}</div>
+                            <div class="activity-content">
+                                <div class="activity-title">${activity.title || 'Unknown'} at ${activity.company || 'Unknown'}</div>
+                                <div class="activity-meta">${activity.message} • ${timeAgo}</div>
+                            </div>
+                            ${scoreHtml}
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to fetch activity:', error);
+            }
+        }
+
+        // Animate number value
+        function animateValue(id, target) {
+            const element = document.getElementById(id);
+            const current = parseInt(element.textContent) || 0;
+
+            if (current === target) return;
+
+            const duration = 1000;
+            const steps = 30;
+            const increment = (target - current) / steps;
+            let step = 0;
+
+            const timer = setInterval(() => {
+                step++;
+                const value = Math.round(current + increment * step);
+                element.textContent = value.toLocaleString();
+
+                if (step >= steps) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                }
+            }, duration / steps);
+        }
+
+        // Get time ago string
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        // Update last refresh time display
+        function updateLastRefreshTime() {
+            const el = document.getElementById('lastRefresh');
+            if (el) {
+                el.textContent = new Date().toLocaleTimeString();
+            }
+        }
+
+        // Manual refresh with visual feedback
+        async function refreshData() {
+            const btn = document.querySelector('.refresh-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Loading...';
+            btn.disabled = true;
+
+            try {
+                await Promise.all([fetchStats(), fetchActivity()]);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Toggle auto-refresh
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const btn = document.getElementById('autoRefreshBtn');
+            const indicator = document.getElementById('autoRefreshIndicator');
+
+            if (autoRefreshEnabled) {
+                btn.textContent = '⏸️ Pause';
+                btn.classList.remove('paused');
+                indicator.style.display = 'flex';
+                startPolling();
+            } else {
+                btn.textContent = '▶️ Resume';
+                btn.classList.add('paused');
+                indicator.style.display = 'none';
+                stopPolling();
+            }
+        }
+
+        // Start polling
+        function startPolling() {
+            stopPolling(); // Clear any existing timers
+            statsTimer = setInterval(fetchStats, pollingInterval);
+            activityTimer = setInterval(fetchActivity, pollingInterval);
+        }
+
+        // Stop polling
+        function stopPolling() {
+            if (statsTimer) clearInterval(statsTimer);
+            if (activityTimer) clearInterval(activityTimer);
+        }
+
+        // Initialize
+        async function init() {
+            await fetchConfig();
+            fetchStats();
+            fetchActivity();
+            startPolling();
+        }
+
+        init();
+    </script>
+</body>
+</html>
+

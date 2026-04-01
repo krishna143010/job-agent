@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Feed | TalentPulse AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --glow: rgba(99, 102, 241, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-pattern {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* Navigation */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+            border-color: var(--border);
+        }
+
+        .nav-link.active {
+            color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-card);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--secondary);
+            padding: 10px 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50px;
+        }
+
+        .live-dot {
+            width: 8px; height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Refresh Controls */
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-color: var(--primary);
+        }
+
+        .refresh-btn.paused {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--accent);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .last-refresh {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Activity List */
+        .activity-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .activity-list {
+            max-height: calc(100vh - 400px);
+            min-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: background 0.2s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .activity-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.alert { background: rgba(16, 185, 129, 0.15); }
+        .activity-icon.processed { background: rgba(99, 102, 241, 0.15); }
+        .activity-icon.filtered { background: rgba(245, 158, 11, 0.15); }
+        .activity-icon.error { background: rgba(239, 68, 68, 0.15); }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            gap: 12px;
+        }
+
+        .activity-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .activity-company {
+            color: var(--primary-light);
+        }
+
+        .activity-time {
+            font-size: 13px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .activity-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .activity-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .activity-tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .activity-tag.score {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .activity-tag.score.high {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--secondary);
+        }
+
+        .activity-tag.type {
+            background: var(--bg-dark);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .activity-tag.type.alert { color: var(--secondary); }
+        .activity-tag.type.error { color: var(--danger); }
+        .activity-tag.type.filtered { color: var(--accent); }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Scrollbar */
+        .activity-list::-webkit-scrollbar { width: 8px; }
+        .activity-list::-webkit-scrollbar-track { background: var(--bg-dark); }
+        .activity-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .activity-list::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Stats Summary */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 32px; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-tabs { justify-content: center; }
+            .stats-summary { grid-template-columns: repeat(2, 1fr); }
+            .nav-links { gap: 4px; }
+            .nav-link { padding: 8px 12px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="grid-pattern"></div>
+
+    <nav>
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <span class="logo-text">TalentPulse AI</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/" class="nav-link">🏠 Home</a>
+                    <a href="/stats.html" class="nav-link">📊 Statistics</a>
+                    <a href="/activity.html" class="nav-link active">📡 Activity</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1>📡 Live Activity Feed</h1>
+                <p>Real-time job processing events and alerts</p>
+            </div>
+
+            <div class="stats-summary">
+                <div class="summary-item">
+                    <div class="summary-value" id="totalCount">—</div>
+                    <div class="summary-label">Total Events</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="alertCount">—</div>
+                    <div class="summary-label">Alerts</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="processedCount">—</div>
+                    <div class="summary-label">Processed</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="filteredCount">—</div>
+                    <div class="summary-label">Filtered</div>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="alert">🎯 Alerts</button>
+                    <button class="filter-tab" data-filter="processed">✅ Processed</button>
+                    <button class="filter-tab" data-filter="filtered">🚫 Filtered</button>
+                    <button class="filter-tab" data-filter="error">❌ Errors</button>
+                </div>
+                <div class="refresh-controls">
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        <span>Auto-refresh</span>
+                    </div>
+                    <span class="last-refresh">Last: <span id="lastRefresh">—</span></span>
+                    <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+                    <button class="refresh-btn" id="autoRefreshBtn" onclick="toggleAutoRefresh()">⏸️ Pause</button>
+                </div>
+            </div>
+
+            <div class="activity-container">
+                <div class="activity-list" id="activityList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>No activity yet</h3>
+                        <p>Job events will appear here when processed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>TalentPulse AI — Real-time job opportunity intelligence</p>
+        </div>
+    </footer>
+
+    <script>
+        let allActivities = [];
+        let currentFilter = 'all';
+        let pollingInterval = 300000; // Default 5 minutes
+        let autoRefreshEnabled = true;
+        let activityTimer = null;
+
+        // Fetch config first
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                pollingInterval = (config.pollingIntervalSeconds || 300) * 1000;
+                console.log('Polling interval set to:', pollingInterval / 1000, 'seconds');
+            } catch (error) {
+                console.error('Failed to fetch config, using default polling interval');
+            }
+        }
+
+        async function fetchActivity() {
+            try {
+                const response = await fetch('/api/activity');
+                allActivities = await response.json();
+                updateSummary();
+                renderActivities();
+                updateLastRefreshTime();
+            } catch (error) {
+                console.error('Failed to fetch activity:', error);
+            }
+        }
+
+        function updateSummary() {
+            document.getElementById('totalCount').textContent = allActivities.length;
+            document.getElementById('alertCount').textContent = allActivities.filter(a => a.type === 'ALERT').length;
+            document.getElementById('processedCount').textContent = allActivities.filter(a => a.type === 'PROCESSED').length;
+            document.getElementById('filteredCount').textContent = allActivities.filter(a => a.type === 'FILTERED').length;
+        }
+
+        function renderActivities() {
+            const filtered = currentFilter === 'all'
+                ? allActivities
+                : allActivities.filter(a => a.type.toLowerCase() === currentFilter);
+
+            const activityList = document.getElementById('activityList');
+
+            if (filtered.length === 0) {
+                activityList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>No ${currentFilter === 'all' ? '' : currentFilter + ' '}activity yet</h3>
+                        <p>Job events will appear here when processed</p>
+                    </div>
+                `;
+                return;
+            }
+
+            activityList.innerHTML = filtered.map(activity => {
+                const icons = {
+                    'ALERT': '🎯',
+                    'PROCESSED': '✅',
+                    'FILTERED': '🚫',
+                    'ERROR': '❌'
+                };
+                const icon = icons[activity.type] || '📋';
+                const iconClass = activity.type.toLowerCase();
+                const timeAgo = getTimeAgo(new Date(activity.timestamp));
+
+                const scoreHtml = activity.score !== null
+                    ? `<span class="activity-tag score ${activity.score >= 8 ? 'high' : ''}">${activity.score}/10</span>`
+                    : '';
+
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon ${iconClass}">${icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-header">
+                                <div class="activity-title">
+                                    ${activity.title || 'Unknown Position'}
+                                    <span class="activity-company">@ ${activity.company || 'Unknown'}</span>
+                                </div>
+                                <div class="activity-time">${timeAgo}</div>
+                            </div>
+                            <div class="activity-message">${activity.message}</div>
+                            <div class="activity-meta">
+                                <span class="activity-tag type ${iconClass}">${activity.type}</span>
+                                ${scoreHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        function updateLastRefreshTime() {
+            const el = document.getElementById('lastRefresh');
+            if (el) {
+                el.textContent = new Date().toLocaleTimeString();
+            }
+        }
+
+        // Manual refresh with visual feedback
+        async function refreshData() {
+            const btn = document.querySelector('.refresh-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Loading...';
+            btn.disabled = true;
+
+            try {
+                await fetchActivity();
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const btn = document.getElementById('autoRefreshBtn');
+            const indicator = document.querySelector('.live-indicator');
+
+            if (autoRefreshEnabled) {
+                btn.textContent = '⏸️ Pause';
+                btn.classList.remove('paused');
+                if (indicator) indicator.style.display = 'flex';
+                startPolling();
+            } else {
+                btn.textContent = '▶️ Resume';
+                btn.classList.add('paused');
+                if (indicator) indicator.style.display = 'none';
+                stopPolling();
+            }
+        }
+
+        function startPolling() {
+            stopPolling();
+            activityTimer = setInterval(fetchActivity, pollingInterval);
+        }
+
+        function stopPolling() {
+            if (activityTimer) clearInterval(activityTimer);
+        }
+
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderActivities();
+            });
+        });
+
+        // Initialize
+        async function init() {
+            await fetchConfig();
+            fetchActivity();
+            startPolling();
+        }
+
+        init();
+    </script>
+</body>
+</html>
+

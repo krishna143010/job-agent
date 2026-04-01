@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics | TalentPulse AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --glow: rgba(99, 102, 241, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-pattern {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+
+        /* Navigation */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+            border-color: var(--border);
+        }
+
+        .nav-link.active {
+            color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Refresh Controls */
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-color: var(--primary);
+        }
+
+        .refresh-btn.paused {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--accent);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .last-refresh {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        .refresh-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Stats Grid */
+        .stats-section { padding: 40px 0; }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card:hover::before { opacity: 1; }
+
+        .stat-icon {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon.primary { background: rgba(99, 102, 241, 0.15); }
+        .stat-icon.success { background: rgba(16, 185, 129, 0.15); }
+        .stat-icon.warning { background: rgba(245, 158, 11, 0.15); }
+        .stat-icon.danger { background: rgba(239, 68, 68, 0.15); }
+        .stat-icon.info { background: rgba(59, 130, 246, 0.15); }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-meta {
+            margin-top: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Config Section */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .config-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .config-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .config-value {
+            font-size: 24px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-light);
+        }
+
+        /* JSON Preview */
+        .json-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 40px;
+        }
+
+        .json-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .json-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary-light);
+        }
+
+        .json-content {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .json-key { color: #818cf8; }
+        .json-string { color: #34d399; }
+        .json-number { color: #fbbf24; }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Refresh indicator */
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .refresh-dot {
+            width: 8px; height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 32px; }
+            .stat-value { font-size: 36px; }
+            .nav-links { gap: 4px; }
+            .nav-link { padding: 8px 12px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="grid-pattern"></div>
+
+    <nav>
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <span class="logo-text">TalentPulse AI</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/" class="nav-link">🏠 Home</a>
+                    <a href="/stats.html" class="nav-link active">📊 Statistics</a>
+                    <a href="/activity.html" class="nav-link">📡 Activity</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1>📊 System Statistics</h1>
+                <p>Real-time metrics and performance data</p>
+            </div>
+
+            <section class="stats-section">
+                <div class="section-title">
+                    <span>⏱️ Last 24 Hours</span>
+                    <div class="refresh-controls">
+                        <div class="refresh-indicator">
+                            <span class="refresh-dot"></span>
+                            <span>Auto-refresh</span>
+                        </div>
+                        <span class="last-refresh">Last: <span id="lastRefresh">—</span></span>
+                        <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+                        <button class="refresh-btn" id="autoRefreshBtn" onclick="toggleAutoRefresh()">⏸️ Pause</button>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">📥</div>
+                        <div class="stat-label">Jobs Processed</div>
+                        <div class="stat-value" id="processed24h">—</div>
+                        <div class="stat-meta">In the last 24 hours</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">🔔</div>
+                        <div class="stat-label">Alerts Triggered</div>
+                        <div class="stat-value" id="alerts24h">—</div>
+                        <div class="stat-meta">High-score notifications sent</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stats-section">
+                <div class="section-title">📈 All Time Statistics</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">📊</div>
+                        <div class="stat-label">Total Processed</div>
+                        <div class="stat-value" id="totalProcessed">—</div>
+                        <div class="stat-meta">Since deployment</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">✅</div>
+                        <div class="stat-label">Jobs Passed</div>
+                        <div class="stat-value" id="totalPassed">—</div>
+                        <div class="stat-meta">Qualified jobs logged</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">🎯</div>
+                        <div class="stat-label">Total Alerts</div>
+                        <div class="stat-value" id="totalAlerts">—</div>
+                        <div class="stat-meta">Slack notifications sent</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon danger">🚫</div>
+                        <div class="stat-label">Jobs Filtered</div>
+                        <div class="stat-value" id="totalFiltered">—</div>
+                        <div class="stat-meta">Didn't meet criteria</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stats-section">
+                <div class="section-title">⚙️ Current Configuration</div>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <div class="config-label">Alert Threshold</div>
+                        <div class="config-value" id="alertThreshold">—</div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-label">Max Job Age</div>
+                        <div class="config-value"><span id="maxAgeHours">—</span>h</div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-label">Max Applicants</div>
+                        <div class="config-value" id="maxApplicants">—</div>
+                    </div>
+                    <div class="config-item">
+                        <div class="config-label">System Uptime</div>
+                        <div class="config-value" id="uptime">—</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="json-section">
+                <div class="json-header">
+                    <span class="json-title">📄 Raw API Response</span>
+                    <button class="copy-btn" onclick="copyJson()">📋 Copy JSON</button>
+                </div>
+                <pre class="json-content" id="jsonContent">Loading...</pre>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>TalentPulse AI — Real-time job opportunity intelligence</p>
+        </div>
+    </footer>
+
+    <script>
+        let rawData = {};
+        let pollingInterval = 300000; // Default 5 minutes
+        let autoRefreshEnabled = true;
+        let statsTimer = null;
+
+        // Fetch config first
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                pollingInterval = (config.pollingIntervalSeconds || 300) * 1000;
+                console.log('Polling interval set to:', pollingInterval / 1000, 'seconds');
+            } catch (error) {
+                console.error('Failed to fetch config, using default polling interval');
+            }
+        }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                rawData = await response.json();
+
+                // Update values with animation
+                animateValue('processed24h', rawData.processed24h || 0);
+                animateValue('alerts24h', rawData.alerts24h || 0);
+                animateValue('totalProcessed', rawData.totalProcessed || 0);
+                animateValue('totalPassed', rawData.totalPassed || 0);
+                animateValue('totalAlerts', rawData.totalAlerts || 0);
+                animateValue('totalFiltered', rawData.totalFiltered || 0);
+
+                // Config values
+                document.getElementById('alertThreshold').textContent = rawData.alertThreshold || '—';
+                document.getElementById('maxAgeHours').textContent = rawData.maxAgeHours || '—';
+                document.getElementById('maxApplicants').textContent = rawData.maxApplicants || '—';
+                document.getElementById('uptime').textContent = rawData.uptime || '—';
+
+                // JSON preview
+                document.getElementById('jsonContent').innerHTML = syntaxHighlight(JSON.stringify(rawData, null, 2));
+
+                updateLastRefreshTime();
+            } catch (error) {
+                console.error('Failed to fetch stats:', error);
+            }
+        }
+
+        function animateValue(id, target) {
+            const element = document.getElementById(id);
+            const current = parseInt(element.textContent) || 0;
+            if (current === target) return;
+
+            const duration = 800;
+            const steps = 20;
+            const increment = (target - current) / steps;
+            let step = 0;
+
+            const timer = setInterval(() => {
+                step++;
+                element.textContent = Math.round(current + increment * step).toLocaleString();
+                if (step >= steps) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                }
+            }, duration / steps);
+        }
+
+        function syntaxHighlight(json) {
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function copyJson() {
+            navigator.clipboard.writeText(JSON.stringify(rawData, null, 2));
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = '✓ Copied!';
+            setTimeout(() => btn.textContent = '📋 Copy JSON', 2000);
+        }
+
+        function updateLastRefreshTime() {
+            const el = document.getElementById('lastRefresh');
+            if (el) {
+                el.textContent = new Date().toLocaleTimeString();
+            }
+        }
+
+        // Manual refresh with visual feedback
+        async function refreshData() {
+            const btn = document.querySelector('.refresh-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Loading...';
+            btn.disabled = true;
+
+            try {
+                await fetchStats();
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const btn = document.getElementById('autoRefreshBtn');
+            const indicator = document.querySelector('.refresh-indicator');
+
+            if (autoRefreshEnabled) {
+                btn.textContent = '⏸️ Pause';
+                btn.classList.remove('paused');
+                if (indicator) indicator.style.display = 'flex';
+                startPolling();
+            } else {
+                btn.textContent = '▶️ Resume';
+                btn.classList.add('paused');
+                if (indicator) indicator.style.display = 'none';
+                stopPolling();
+            }
+        }
+
+        function startPolling() {
+            stopPolling();
+            statsTimer = setInterval(fetchStats, pollingInterval);
+        }
+
+        function stopPolling() {
+            if (statsTimer) clearInterval(statsTimer);
+        }
+
+        // Initialize
+        async function init() {
+            await fetchConfig();
+            fetchStats();
+            startPolling();
+        }
+
+        init();
+    </script>
+</body>
+</html>
+

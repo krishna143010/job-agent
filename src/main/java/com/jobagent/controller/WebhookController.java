@@ -51,13 +51,6 @@ public class WebhookController {
         return ResponseEntity.ok("accepted");
     }
 
-    /**
-     * Health check — Cloud Run uses this to verify the app is alive.
-     */
-    @GetMapping("/health")
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("job-agent running");
-    }
 
     /**
      * Manual test — simulates a single job without needing Apify.

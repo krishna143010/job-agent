@@ -67,6 +67,32 @@ public class ClaudeService {
             ? job.getDescription().substring(0, Math.min(500, job.getDescription().length()))
             : "No description available";
 
+        String qualifications = job.getQualifications() != null 
+            ? job.getQualifications() 
+            : "Not specified";
+
+        String responsibilities = job.getResponsibilities() != null 
+            ? job.getResponsibilities() 
+            : "Not specified";
+
+        String experienceLevel = job.getExperienceLevel() != null 
+            ? job.getExperienceLevel() 
+            : "Not specified";
+
+        String visaSponsorship = job.getVisaSponsorshipStatus();
+        if (visaSponsorship.isBlank()) {
+            visaSponsorship = "Not specified";
+        }
+
+        String salaryInfo = job.getFormattedSalary();
+        if (salaryInfo.isBlank()) {
+            salaryInfo = "Not specified";
+        }
+
+        String workArrangement = job.getWorkArrangement() != null 
+            ? job.getWorkArrangement() 
+            : "Not specified";
+
         return String.format("""
             You are a job relevance scorer for a software engineer.
             
@@ -74,13 +100,25 @@ public class ClaudeService {
             - Roles: %s
             - Skills: %s
             - Preferences: %s
-            - experience: %s
+            - Experience: %s
             
             Evaluate this job posting:
             Company: %s
             Title: %s
             Location: %s
-            Description excerpt: %s
+            Work Arrangement: %s
+            Experience Level Required: %s
+            Salary: %s
+            Visa Sponsorship: %s
+            
+            Qualifications/Requirements:
+            %s
+            
+            Core Responsibilities:
+            %s
+            
+            Description excerpt:
+            %s
             
             Return ONLY a JSON object, no explanation, no markdown:
             {
@@ -107,6 +145,12 @@ public class ClaudeService {
             job.getCompany(),
             job.getTitle(),
             job.getLocation() != null ? job.getLocation() : "Not specified",
+            workArrangement,
+            experienceLevel,
+            salaryInfo,
+            visaSponsorship,
+            qualifications,
+            responsibilities,
             descriptionExcerpt
         );
     }
