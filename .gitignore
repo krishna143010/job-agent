@@ -10,3 +10,6 @@ out/
 # Local secrets file
 src/main/resources/application-local.properties
 
+# Secrets/notes file - contains API keys and credentials
+gcloud run deploy job-agent --sourc.txt
+
