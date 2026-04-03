@@ -20,12 +20,14 @@ public class Job {
     private String title;
 
     @JsonProperty("description")
-    @JsonAlias("description_text")
+    @JsonAlias({"description_text", "descriptionText"})
     private String description;
 
+
     @JsonProperty("url")
-    @JsonAlias("jobUrl")
+    @JsonAlias({"jobUrl", "link", "applyUrl"})
     private String url;
+
 
     @JsonProperty("location")
     private String location;
@@ -36,7 +38,9 @@ public class Job {
 
     // Applications count - from JSON1 (e.g., "79 applicants", "Over 200 applicants")
     @JsonProperty("applicationsCount")
+    @JsonAlias("applicantsCount")
     private String applicationsCount;
+
 
     /**
      * Parses the applicationsCount string and returns the numeric value.
@@ -76,8 +80,9 @@ public class Job {
 
     // Experience level - from JSON1 (experienceLevel) or JSON2/JSON3 (ai_experience_level)
     @JsonProperty("experienceLevel")
-    @JsonAlias("ai_experience_level")
+    @JsonAlias({"ai_experience_level", "seniorityLevel"})
     private String experienceLevel;
+
 
     // Employment/Contract type - from JSON1 (contractType)
     @JsonProperty("employmentType")
@@ -116,8 +121,20 @@ public class Job {
     private JobScore score;
 
     /**
+     * Handles workplaceTypes array format (new actor).
+     * Takes the first workplace type from the array.
+     */
+    @JsonSetter("workplaceTypes")
+    public void setWorkplaceTypes(List<String> types) {
+        if (this.workArrangement == null && types != null && !types.isEmpty()) {
+            this.workArrangement = types.get(0);
+        }
+    }
+
+    /**
      * Handles ai_key_skills which is always an array.
      */
+
     @JsonSetter("ai_key_skills")
     public void setAiKeySkills(List<String> skills) {
         this.keySkills = skills;

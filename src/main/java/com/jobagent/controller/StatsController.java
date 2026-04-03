@@ -65,7 +65,7 @@ public class StatsController {
     @GetMapping("/activity")
     public ResponseEntity<List<Map<String, Object>>> getRecentActivity() {
         List<Map<String, Object>> activities = statsService.getRecentActivity().stream()
-                .limit(20)
+
                 .map(activity -> {
                     Map<String, Object> item = new HashMap<>();
                     item.put("timestamp", activity.getTimestamp().toString());
