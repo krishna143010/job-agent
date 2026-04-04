@@ -29,6 +29,9 @@ dependencies {
     implementation 'com.google.auth:google-auth-library-oauth2-http:1.23.0'
     implementation 'com.google.http-client:google-http-client-jackson2:1.44.1'
 
+    // Apache POI for reading .docx resume files
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+
     // Env file loading for local dev
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 

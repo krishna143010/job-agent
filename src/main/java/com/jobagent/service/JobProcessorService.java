@@ -31,6 +31,7 @@ public class JobProcessorService {
     private final SheetsService sheetsService;
     private final SlackService slackService;
     private final StatsService statsService;
+    private final ResumeService resumeService;
 
     /**
      * Main pipeline entry point.
@@ -102,11 +103,22 @@ public class JobProcessorService {
 
                 passed++;
 
-                // Step 7 — Log every passing job to Google Sheets
+                // Step 7 — For high-score jobs, tailor the resume (if enabled)
+                boolean alertTriggered = score.getScore() >= config.getAlertThreshold();
+                log.debug("Job '{}' score: {}, threshold: {}, alertTriggered: {}, resumeTailoringEnabled: {}, resumeAvailable: {}",
+                    job.getTitle(), score.getScore(), config.getAlertThreshold(), alertTriggered,
+                    config.isResumeTailoringEnabled(), resumeService.isAvailable());
+                
+                if (alertTriggered && config.isResumeTailoringEnabled() && resumeService.isAvailable()) {
+                    log.info("Tailoring resume for high-score job: {} at {}", job.getTitle(), job.getCompany());
+                    String tailoredResume = resumeService.tailorResumeForJob(job);
+                    job.setTailoredResumeLatex(tailoredResume);
+                }
+
+                // Step 8 — Log every passing job to Google Sheets (including tailored resume if available)
                 sheetsService.appendJob(job);
 
-                // Step 8 — Alert on Slack only if score meets threshold
-                boolean alertTriggered = score.getScore() >= config.getAlertThreshold();
+                // Step 9 — Alert on Slack only if score meets threshold
                 if (alertTriggered) {
                     slackService.sendAlert(job);
                     alerted++;

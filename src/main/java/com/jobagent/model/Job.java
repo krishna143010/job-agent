@@ -120,6 +120,9 @@ public class Job {
     // Populated after Claude scoring
     private JobScore score;
 
+    // Tailored resume LaTeX code (populated for high-score jobs)
+    private String tailoredResumeLatex;
+
     /**
      * Handles workplaceTypes array format (new actor).
      * Takes the first workplace type from the array.

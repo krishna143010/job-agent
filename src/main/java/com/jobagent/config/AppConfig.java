@@ -119,6 +119,12 @@ public class AppConfig {
     @Value("${ui.polling-interval-seconds:300}")
     private int uiPollingIntervalSeconds;
 
+    @Value("${resume.file-path:}")
+    private String resumeFilePath;
+
+    @Value("${resume.tailoring.enabled:false}")
+    private boolean resumeTailoringEnabled;
+
     /**
      * Returns the list of excluded title keywords (case-insensitive matching).
      */

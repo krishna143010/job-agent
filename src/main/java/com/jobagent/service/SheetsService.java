@@ -85,7 +85,8 @@ public class SheetsService {
                 job.getKeySkillsFormatted(),
                 job.getUrl() != null ? job.getUrl() : "",
                 LocalDate.now().toString(),
-                "new"  // status column — update manually as you progress
+                "new",  // status column — update manually as you progress
+                job.getTailoredResumeLatex() != null ? job.getTailoredResumeLatex() : ""  // tailored resume LaTeX
             );
 
             ValueRange body = new ValueRange().setValues(List.of(row));

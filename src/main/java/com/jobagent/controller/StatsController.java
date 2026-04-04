@@ -1,6 +1,7 @@
 package com.jobagent.controller;
 
 import com.jobagent.config.AppConfig;
+import com.jobagent.service.ResumeService;
 import com.jobagent.service.StatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
@@ -21,6 +22,7 @@ public class StatsController {
 
     private final StatsService statsService;
     private final AppConfig config;
+    private final ResumeService resumeService;
 
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getStats() {
@@ -93,5 +95,17 @@ public class StatsController {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())
                 .body(health);
+    }
+
+    @GetMapping("/resume-status")
+    public ResponseEntity<Map<String, Object>> getResumeStatus() {
+        Map<String, Object> status = new HashMap<>();
+        status.put("resumeAvailable", resumeService.isAvailable());
+        status.put("resumeContentLength", resumeService.getResumeContentLength());
+        status.put("resumeFilePath", config.getResumeFilePath());
+        status.put("resumeTailoringEnabled", config.isResumeTailoringEnabled());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(status);
     }
 }
